@@ -45,40 +45,22 @@ public class DBLogger extends AbstractLogger {
 
     private void createDBSchema() {
         try {
-            jdbcTemplate.update("CREATE SCHEMA " + schema);
+            jdbcTemplate.update("CREATE SCHEMA IF NOT EXISTS " + schema);
         } catch (DataAccessException e) {
-            Throwable causeException = e.getCause();
-            if (causeException instanceof SQLException) {
-                SQLException sqlException = (SQLException) causeException;
-                if (sqlException.getSQLState().equals(SQL_ERROR_STATE_SCHEMA_EXISTS)) {
-                    System.out.println("Schema already exists");
-                } else {
-                    throw e;
-                }
-            } else {
-                throw e;
-            }
+            System.out.println("Schema already exists: " + e.getMessage());
         }
     }
 
     private void createTableIfNotExists() {
         try {
-            jdbcTemplate.update("CREATE TABLE t_event (" + "id INT NOT NULL PRIMARY KEY," + "date TIMESTAMP,"
-                    + "msg VARCHAR(255)" + ")");
-
+            jdbcTemplate.update("CREATE TABLE IF NOT EXISTS t_event ("
+                    + "id INT PRIMARY KEY, "
+                    + "date TIMESTAMP, "
+                    + "msg VARCHAR(255)"
+                    + ")");
             System.out.println("Created table t_event");
         } catch (DataAccessException e) {
-            Throwable causeException = e.getCause();
-            if (causeException instanceof SQLException) {
-                SQLException sqlException = (SQLException) causeException;
-                if (sqlException.getSQLState().equals(SQL_ERROR_STATE_TABLE_EXISTS)) {
-                    System.out.println("Table already exists");
-                } else {
-                    throw e;
-                }
-            } else {
-                throw e;
-            }
+            System.out.println("Table already exists or error: " + e.getMessage());
         }
     }
     
